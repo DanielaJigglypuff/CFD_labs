@@ -82,4 +82,59 @@ def euler_method(interval_start, interval_end, initial_condition, function_name,
     print(f'Relative Error: {err_rel}')
 
 
-euler_method(1, 2, -1, "fun_ex1", 101)
+# euler_method(1, 2, -1, "fun_ex1", 101)
+
+# Week 3
+def blasius_function(y, t):
+    return np.array([y[1], y[2], -y[2] * y[0]])
+
+
+def blasius_method(interval_start, interval_end, solution_guess_1, solution_guess_2, current_velocity_gradient,
+                   tolerance=1e-8):
+    """
+    Iteratively solves the Blasius equation to find the correct value of the parameter S such that the solution
+    satisfies the boundary condition
+    :param tolerance:
+    :param solution_guess_2:
+    :param solution_guess_1:
+    :param interval_end:
+    :param interval_start:
+    :param current_velocity_gradient  serves as an indicator of how close the computed solution is to the desired
+    boundary condition of  f'(inf) = 1
+    """
+    iterations = 0
+    while abs(current_velocity_gradient - 1) > tolerance:
+        solution = (solution_guess_1 + solution_guess_2) / 2
+        # Define the initial conditions for f(eta), f'(eta), and f''(eta)
+        initial_condition = np.array([0.0, 0.0, solution])
+        # Solver the ODE
+        t = np.linspace(interval_start, interval_end, 100)
+        y = odeint(blasius_function, initial_condition, t)
+        num_rows, num_cols = y.shape
+        if y[num_rows - 1, 1] < 1:
+            solution_guess_1 = solution
+        else:
+            solution_guess_2 = solution
+        initial_condition = y[num_rows - 1, 1]
+        iterations += 1
+
+        print(f'Iteratia: {iterations} f_sec(0): {solution:.10f} f_prim(inf): {initial_condition:.10f}')
+        input("Press Enter to continue...")
+
+    # Create a matrix A with t and y values
+    matrix_A = np.column_stack((t, y))
+
+    # Display the matrix A
+    print('  eta                 f             fprim               fsec  ')
+    print(matrix_A)
+
+    # Plot the results
+    plt.plot(matrix_A[:, 0], matrix_A[:, 1][:, 1])
+    plt.xlabel('t')
+    plt.ylabel('df/dt(t)')
+    plt.show()
+
+    # Display the value at (t = 0)
+    print(y[0, 2])
+
+# blasius_method(0, 7, 0.1, 0.7, 2)
