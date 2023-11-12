@@ -4,11 +4,11 @@ from scipy.integrate import odeint
 
 
 # WEEK 2
-def funEx1(t, y):
+def fun_ex1(t, y):
     return 1 / t ** 2 - y / 2 - y ** 2
 
 
-def EulerMethod(interval_start, interval_end, initial_condition, function_name, number_of_nodes=101):
+def euler_method(interval_start, interval_end, initial_condition, function_name, number_of_nodes=101):
     """
     --Understanding ODEs:--
     Before delving into the Euler method, it's important to understand what an ordinary differential equation (ODE) is.
@@ -50,13 +50,13 @@ def EulerMethod(interval_start, interval_end, initial_condition, function_name, 
     :param number_of_nodes:
     :return:
     """
-    stepSize = (interval_end - interval_start) / (number_of_nodes - 1)
+    step_size = (interval_end - interval_start) / (number_of_nodes - 1)
     y = np.zeros(number_of_nodes)
     t = np.linspace(interval_start, interval_end, number_of_nodes)
     y[0] = initial_condition
     for i in range(number_of_nodes - 1):
         try:
-            y[i + 1] = y[i] + stepSize * eval(function_name)(t[i], y[i])
+            y[i + 1] = y[i] + step_size * eval(function_name)(t[i], y[i])
         except NameError:
             print(f"Function '{function_name}' is not defined.")
             return None
@@ -82,4 +82,4 @@ def EulerMethod(interval_start, interval_end, initial_condition, function_name, 
     print(f'Relative Error: {err_rel}')
 
 
-EulerMethod(1, 2, -1, "funEx1", 101)
+euler_method(1, 2, -1, "fun_ex1", 101)
