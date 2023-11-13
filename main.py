@@ -90,10 +90,11 @@ def blasius_function(y, t):
 
 
 def blasius_method(interval_start, interval_end, solution_guess_1, solution_guess_2, current_velocity_gradient,
-                   tolerance=1e-8):
+                   function_name, tolerance=0.00001):
     """
     Iteratively solves the Blasius equation to find the correct value of the parameter S such that the solution
     satisfies the boundary condition
+    :param function_name:
     :param tolerance:
     :param solution_guess_2:
     :param solution_guess_1:
@@ -104,21 +105,22 @@ def blasius_method(interval_start, interval_end, solution_guess_1, solution_gues
     """
     iterations = 0
     while abs(current_velocity_gradient - 1) > tolerance:
+        print(abs(current_velocity_gradient - 1))
         solution = (solution_guess_1 + solution_guess_2) / 2
         # Define the initial conditions for f(eta), f'(eta), and f''(eta)
         initial_condition = np.array([0.0, 0.0, solution])
         # Solver the ODE
         t = np.linspace(interval_start, interval_end, 100)
-        y = odeint(blasius_function, initial_condition, t)
+        y = odeint(function_name, initial_condition, t)
         num_rows, num_cols = y.shape
         if y[num_rows - 1, 1] < 1:
             solution_guess_1 = solution
         else:
             solution_guess_2 = solution
-        initial_condition = y[num_rows - 1, 1]
+        current_velocity_gradient = y[num_rows - 1, 1]
         iterations += 1
 
-        print(f'Iteratia: {iterations} f_sec(0): {solution:.10f} f_prim(inf): {initial_condition:.10f}')
+        print(f'Iteration: {iterations} f_sec(0): {solution:.10f} f_prim(inf): {initial_condition[2]:.10f}')
         input("Press Enter to continue...")
 
     # Create a matrix A with t and y values
@@ -129,7 +131,7 @@ def blasius_method(interval_start, interval_end, solution_guess_1, solution_gues
     print(matrix_A)
 
     # Plot the results
-    plt.plot(matrix_A[:, 0], matrix_A[:, 1][:, 1])
+    plt.plot(matrix_A[:, 0], matrix_A[:, 1])
     plt.xlabel('t')
     plt.ylabel('df/dt(t)')
     plt.show()
@@ -137,4 +139,4 @@ def blasius_method(interval_start, interval_end, solution_guess_1, solution_gues
     # Display the value at (t = 0)
     print(y[0, 2])
 
-# blasius_method(0, 7, 0.1, 0.7, 2)
+# blasius_method(0, 7, 0.1, 0.7, 2, blasius_function)
